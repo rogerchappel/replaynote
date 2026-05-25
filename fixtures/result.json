@@ -1,0 +1,15 @@
+{
+  "command": ["npm", "test"],
+  "cwd": "/workspace/replaynote",
+  "exitCode": 0,
+  "signal": null,
+  "durationMs": 742,
+  "startedAt": "2026-05-26T00:00:00.000Z",
+  "finishedAt": "2026-05-26T00:00:00.742Z",
+  "env": {
+    "CI": "true",
+    "NODE_ENV": "test"
+  },
+  "stdout": "ok\n",
+  "stderr": ""
+}

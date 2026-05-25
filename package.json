@@ -16,6 +16,7 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.test.*",
     "examples",
     "fixtures",
     "README.md"

@@ -1,6 +1,9 @@
-# replaynote
+# ReplayNote
 
 ReplayNote turns local command runs into reproducible Markdown and JSON notes.
+It captures the command, cwd, exit status, duration, selected environment keys,
+stdout, and stderr, then redacts common secret-looking values before writing a
+handoff-friendly report.
 
 ## Status
 
@@ -9,20 +12,56 @@ security posture before using it in production.
 
 ## Install
 
-Replace this section with the generated repository's installation steps.
-
 ```sh
 npm install -g @rogerchappel/replaynote
 ```
 
+For local development:
+
+```sh
+npm install
+npm run build
+```
+
 ## Use
 
-Replace this section with the smallest useful example for the generated
-repository.
+Run a command after `--` and write a Markdown note:
 
 ```sh
 replaynote run --out smoke.md -- npm test
 ```
+
+Emit JSON instead:
+
+```sh
+replaynote run --format json -- node --version
+```
+
+Include selected environment keys:
+
+```sh
+replaynote run --env CI,NODE_ENV --out smoke.md -- npm test
+```
+
+Format an existing result fixture without running a command:
+
+```sh
+replaynote format fixtures/result.json --format markdown
+```
+
+Use `--format both` to append the JSON payload below the Markdown report.
+
+## What Gets Captured
+
+- Command and working directory
+- Exit code or signal
+- Start time, finish time, and duration
+- Selected environment keys only
+- Stdout and stderr
+
+ReplayNote redacts common token, password, private key, email, bearer, GitHub,
+Slack, and AWS access key patterns. Redaction is a safety net, not a guarantee;
+review generated notes before sharing them publicly.
 
 ## Verify
 
@@ -41,10 +80,7 @@ should be small, reviewable, and verified before review.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance. Replace
-the default security policy before publishing the generated repository.
-
-These links assume this README has been copied to the generated repository root.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
 
 ## License
 
