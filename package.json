@@ -40,6 +40,14 @@
   ],
   "author": "Roger Chappel",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/replaynote.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/replaynote/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/replaynote#readme",
   "engines": {
     "node": ">=20"
   },

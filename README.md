@@ -20,6 +20,8 @@ For local development:
 
 ```sh
 npm install
+npm run check
+npm test
 npm run build
 ```
 
@@ -65,9 +67,10 @@ review generated notes before sharing them publicly.
 
 ## Verify
 
-Run the local validation script before opening a pull request:
+Run the local release gate before opening a pull request:
 
 ```sh
+npm run release:check
 npm run validate
 ```
 
