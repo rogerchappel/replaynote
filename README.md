@@ -53,6 +53,16 @@ replaynote format fixtures/result.json --format markdown
 
 Use `--format both` to append the JSON payload below the Markdown report.
 
+Run the checked-in fixture demo to create Markdown and JSON reports from the
+sample result fixture:
+
+```sh
+bash examples/fixture-demo.sh
+```
+
+Short promotion hooks for demo videos and social posts live in
+[`docs/promo/social-hooks.md`](docs/promo/social-hooks.md).
+
 ## What Gets Captured
 
 - Command and working directory
