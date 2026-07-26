@@ -4,7 +4,7 @@
   "description": "Local-first command replay notes for reproducible developer handoffs.",
   "type": "module",
   "bin": {
-    "replaynote": "./dist/cli.js"
+    "replaynote": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -25,6 +25,9 @@
     "CHANGELOG.md",
     "CONTRIBUTING.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "check": "tsc --noEmit",
@@ -33,7 +36,7 @@
     "smoke": "npm run build && node dist/cli.js run --out /tmp/replaynote-smoke.md --format both -- node --version",
     "validate": "bash scripts/validate.sh",
     "package:smoke": "npm pack --dry-run",
-    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke",
+    "release:check": "npm run check && npm test && npm run smoke && npm run release:readiness",
     "release:readiness": "node scripts/validate-release-readiness.mjs"
   },
   "keywords": [

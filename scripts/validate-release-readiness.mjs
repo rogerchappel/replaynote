@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const packagePath = path.join(root, 'package.json');
@@ -15,6 +16,23 @@ requireField(packageJson.repository, 'package.json must declare repository metad
 requireField(Array.isArray(packageJson.files) && packageJson.files.length > 0, 'package.json must declare a non-empty files allowlist');
 requireField(scripts['package:smoke'], 'package.json scripts must include package:smoke');
 requireField(scripts['release:check'], 'package.json scripts must include release:check');
+requireField(packageJson.name === '@rogerchappel/replaynote', 'package name must remain @rogerchappel/replaynote');
+requireField(packageJson.publishConfig?.access === 'public', 'package.json must declare public npm access');
+
+const binPath = packageJson.bin?.replaynote;
+requireField(binPath === 'dist/cli.js', 'package must expose replaynote from dist/cli.js');
+
+let packedFiles = [];
+try {
+  const packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  packedFiles = JSON.parse(packOutput)[0]?.files?.map(({ path: file }) => file) ?? [];
+} catch (error) {
+  failures.push(`npm pack --dry-run --json failed: ${error.message}`);
+}
+requireField(packedFiles.includes('dist/cli.js'), 'npm package must contain the replaynote bin target dist/cli.js');
 
 const workflowDir = path.join(root, '.github', 'workflows');
 if (fs.existsSync(workflowDir)) {
@@ -28,6 +46,25 @@ if (fs.existsSync(workflowDir)) {
 
   const combined = workflowFiles.map((file) => fs.readFileSync(path.join(workflowDir, file), 'utf8')).join('\n');
   requireField(/release:check/.test(combined), 'CI workflows must run npm run release:check');
+
+  const releaseWorkflowPath = path.join(workflowDir, 'release.yml');
+  const releaseWorkflow = fs.existsSync(releaseWorkflowPath)
+    ? fs.readFileSync(releaseWorkflowPath, 'utf8')
+    : '';
+  const publishIndex = releaseWorkflow.indexOf('npm publish --provenance --access public');
+  const githubReleaseIndex = releaseWorkflow.indexOf('gh release create');
+  requireField(publishIndex >= 0, 'release workflow must publish to npm with provenance and public access');
+  requireField(
+    githubReleaseIndex >= 0 && publishIndex < githubReleaseIndex,
+    'release workflow must publish to npm before creating a GitHub release',
+  );
+
+  const dryRunPath = path.join(workflowDir, 'release-dry-run.yml');
+  const dryRunWorkflow = fs.existsSync(dryRunPath) ? fs.readFileSync(dryRunPath, 'utf8') : '';
+  requireField(
+    dryRunWorkflow.includes('npm publish --dry-run --access public'),
+    'release dry-run workflow must validate the intended public npm publish command',
+  );
 }
 
 if (failures.length > 0) {
