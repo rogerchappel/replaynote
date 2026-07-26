@@ -12,17 +12,21 @@ security posture before using it in production.
 
 ## Install
 
+ReplayNote is not yet available from the npm registry. Until the first tagged
+release publishes `@rogerchappel/replaynote`, install it from source:
+
 ```sh
-npm install -g @rogerchappel/replaynote
+git clone https://github.com/rogerchappel/replaynote.git
+cd replaynote
+npm ci
+npm run build
+npm link
 ```
 
-For local development:
+After the first npm release, the global installation command will be:
 
 ```sh
-npm install
-npm run check
-npm test
-npm run build
+npm install -g @rogerchappel/replaynote
 ```
 
 ## Use
@@ -100,7 +104,9 @@ npm run release:readiness
 npm run release:check
 ```
 
-`release:readiness` validates repository metadata, the package files allowlist, package smoke coverage, and CI placeholder cleanup. `release:check` runs the project build, test, smoke, and package dry-run checks where configured.
+`release:readiness` validates repository metadata, package identity, the
+packaged CLI entry point, and the npm publication workflow. `release:check`
+runs the project build, test, smoke, and release-readiness checks.
 
 ## Contributing
 
