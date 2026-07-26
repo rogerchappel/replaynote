@@ -8,6 +8,7 @@ format and uses semantic versioning when versioned releases are published.
 ## [Unreleased]
 
 - Added release-readiness validation for package metadata, CI placeholder cleanup, and package smoke coverage.
+- Fixed command-start failures to report concise executable or working-directory context instead of Node.js internal stack traces.
 ### Added
 
 - Initial project setup.
