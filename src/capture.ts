@@ -37,7 +37,16 @@ export async function runCommand(options: RunCommandOptions): Promise<CommandRes
       stderr += chunk;
     });
 
-    child.on('error', reject);
+    child.on('error', (error: NodeJS.ErrnoException) => {
+      const reason = error.code ? ` (${error.code})` : '';
+
+      reject(
+        new ReplayNoteError(
+          'command-start-failed',
+          `could not start command "${executable}" in "${cwd}"${reason}.`
+        )
+      );
+    });
 
     child.on('close', (exitCode, signal) => {
       const finishedAt = new Date();
