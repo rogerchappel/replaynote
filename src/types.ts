@@ -34,6 +34,7 @@ export type WriteReportOptions = FormatOptions & {
 
 export type ReplayNoteErrorCode =
   | 'missing-command'
+  | 'command-start-failed'
   | 'invalid-fixture'
   | 'unsupported-format';
 
