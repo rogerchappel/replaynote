@@ -30,6 +30,34 @@ describe('formatting', () => {
     assert.match(markdown, /ok/);
   });
 
+  it('uses a fence longer than four-backtick output', () => {
+    const markdown = formatResult(
+      { ...result, stdout: 'before\n````\nafter\n' },
+      { format: 'markdown' }
+    );
+
+    assert.match(markdown, /## Stdout\n\n`````text\nbefore\n````\nafter\n`````\n/);
+  });
+
+  it('uses a fence longer than every mixed backtick run', () => {
+    const markdown = formatResult(
+      {
+        ...result,
+        command: ['printf', '``` and ``````'],
+        stderr: 'short ``` run\nlong ``````` run\n',
+        stdout: 'ordinary output\n'
+      },
+      { format: 'markdown' }
+    );
+
+    assert.match(markdown, /## Command\n\n```````sh\nprintf/);
+    assert.match(markdown, /## Stdout\n\n```text\nordinary output\n```\n/);
+    assert.match(
+      markdown,
+      /## Stderr\n\n````````text\nshort ``` run\nlong ``````` run\n````````\n/
+    );
+  });
+
   it('renders JSON reports that parse as fixtures', () => {
     const json = formatResult(result, { format: 'json' });
 
@@ -37,9 +65,13 @@ describe('formatting', () => {
   });
 
   it('renders combined reports', () => {
-    const both = formatResult(result, { format: 'both' });
+    const both = formatResult(
+      { ...result, stdout: 'literal ```` output\n' },
+      { format: 'both' }
+    );
 
     assert.match(both, /^# ReplayNote/);
+    assert.match(both, /`````text\nliteral ```` output\n`````/);
     assert.match(both, /## JSON/);
   });
 });
