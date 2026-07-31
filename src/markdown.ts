@@ -2,7 +2,11 @@ import { formatCommand } from './shell.js';
 import type { CommandResult } from './types.js';
 
 function codeBlock(value: string, language = 'text'): string {
-  const fence = value.includes('```') ? '````' : '```';
+  const longestBacktickRun = Math.max(
+    0,
+    ...Array.from(value.matchAll(/`+/g), ([match]) => match.length)
+  );
+  const fence = '`'.repeat(Math.max(3, longestBacktickRun + 1));
   return `${fence}${language}\n${value}${value.endsWith('\n') ? '' : '\n'}${fence}`;
 }
 
