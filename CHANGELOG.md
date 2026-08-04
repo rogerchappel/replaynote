@@ -9,6 +9,7 @@ format and uses semantic versioning when versioned releases are published.
 
 - Added release-readiness validation for package metadata, CI placeholder cleanup, and package smoke coverage.
 - Fixed command-start failures to report concise executable or working-directory context instead of Node.js internal stack traces.
+- Fixed fixture validation to reject incomplete result metadata and non-string command entries before formatting.
 ### Added
 
 - Initial project setup.
