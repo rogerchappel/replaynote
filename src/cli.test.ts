@@ -1,4 +1,7 @@
 import { spawn } from 'node:child_process';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -53,4 +56,44 @@ describe('CLI command start errors', () => {
     );
     assert.doesNotMatch(result.stderr, /node:child_process|    at /);
   });
+});
+
+describe('CLI fixture errors', () => {
+  for (const [description, fixture] of [
+    [
+      'incomplete result metadata',
+      { command: ['npm', 'test'], cwd: '/repo', env: {}, stdout: '', stderr: '' }
+    ],
+    [
+      'a non-string command entry',
+      {
+        command: ['npm', null],
+        cwd: '/repo',
+        durationMs: 1,
+        env: {},
+        exitCode: 0,
+        finishedAt: '2026-05-26T00:00:01.000Z',
+        signal: null,
+        startedAt: '2026-05-26T00:00:00.000Z',
+        stderr: '',
+        stdout: ''
+      }
+    ]
+  ] as const) {
+    it(`reports ${description} without formatted output`, async () => {
+      const directory = await mkdtemp(join(tmpdir(), 'replaynote-cli-test-'));
+      const path = join(directory, 'fixture.json');
+
+      try {
+        await writeFile(path, JSON.stringify(fixture), 'utf8');
+        const result = await runCli(['format', path, '--format', 'both']);
+
+        assert.equal(result.exitCode, 2);
+        assert.equal(result.stdout, '');
+        assert.equal(result.stderr, 'replaynote: Fixture is not a ReplayNote command result.\n');
+      } finally {
+        await rm(directory, { force: true, recursive: true });
+      }
+    });
+  }
 });

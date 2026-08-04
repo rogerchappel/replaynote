@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { formatResult } from './format.js';
 import { parseFixture } from './fixture.js';
-import type { CommandResult } from './types.js';
+import { ReplayNoteError, type CommandResult } from './types.js';
 
 const result: CommandResult = {
   command: ['npm', 'test'],
@@ -73,5 +73,32 @@ describe('formatting', () => {
     assert.match(both, /^# ReplayNote/);
     assert.match(both, /`````text\nliteral ```` output\n`````/);
     assert.match(both, /## JSON/);
+  });
+});
+
+describe('fixture parsing', () => {
+  it('accepts exit-code and signal result variants', () => {
+    assert.deepEqual(parseFixture(JSON.stringify(result)), result);
+
+    const signaled = { ...result, exitCode: null, signal: 'SIGTERM' as const };
+    assert.deepEqual(parseFixture(JSON.stringify(signaled)), signaled);
+  });
+
+  it('rejects incomplete result metadata', () => {
+    const { durationMs: _durationMs, ...incomplete } = result;
+
+    assert.throws(
+      () => parseFixture(JSON.stringify(incomplete)),
+      (error: unknown) =>
+        error instanceof ReplayNoteError && error.code === 'invalid-fixture'
+    );
+  });
+
+  it('rejects non-string command entries', () => {
+    assert.throws(
+      () => parseFixture(JSON.stringify({ ...result, command: ['npm', null] })),
+      (error: unknown) =>
+        error instanceof ReplayNoteError && error.code === 'invalid-fixture'
+    );
   });
 });
