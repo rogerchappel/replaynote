@@ -54,5 +54,31 @@ export function parseFixture(raw: string): CommandResult {
 }
 
 export async function readFixture(path: string): Promise<CommandResult> {
-  return parseFixture(await readFile(path, 'utf8'));
+  let raw: string;
+
+  try {
+    raw = await readFile(path, 'utf8');
+  } catch (error) {
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error
+        ? String(error.code)
+        : 'UNKNOWN';
+    throw new ReplayNoteError(
+      'fixture-read-failed',
+      `could not read fixture "${path}" (${code}).`
+    );
+  }
+
+  try {
+    return parseFixture(raw);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new ReplayNoteError(
+        'fixture-parse-failed',
+        `could not parse fixture "${path}" as JSON.`
+      );
+    }
+
+    throw error;
+  }
 }

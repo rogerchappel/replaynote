@@ -35,7 +35,10 @@ export type WriteReportOptions = FormatOptions & {
 export type ReplayNoteErrorCode =
   | 'missing-command'
   | 'command-start-failed'
+  | 'fixture-read-failed'
+  | 'fixture-parse-failed'
   | 'invalid-fixture'
+  | 'output-write-failed'
   | 'unsupported-format';
 
 export class ReplayNoteError extends Error {
