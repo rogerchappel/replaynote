@@ -49,9 +49,11 @@ Include selected environment keys:
 replaynote run --env CI,NODE_ENV --out smoke.md -- npm test
 ```
 
-If ReplayNote cannot start the command—for example, because the executable or
-working directory does not exist—it prints a concise diagnostic to stderr and
-exits with status 2. Commands that start successfully retain their own exit
+ReplayNote command-start, validation, and file failures print one concise
+diagnostic to stderr and exit with status 2. This includes commands that cannot start,
+fixtures that cannot be read or parsed, invalid fixture data, and output paths
+that cannot be written. These failures do not emit partial formatted output or
+internal stack traces. Commands that start successfully retain their own exit
 status.
 
 Format an existing result fixture without running a command:

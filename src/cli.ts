@@ -36,7 +36,18 @@ function parseFormat(value: string): OutputFormat {
 
 async function writeOutput(out: string | undefined, output: string): Promise<void> {
   if (out) {
-    await writeFile(out, output, 'utf8');
+    try {
+      await writeFile(out, output, 'utf8');
+    } catch (error) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String(error.code)
+          : 'UNKNOWN';
+      throw new ReplayNoteError(
+        'output-write-failed',
+        `could not write output "${out}" (${code}).`
+      );
+    }
     return;
   }
 
