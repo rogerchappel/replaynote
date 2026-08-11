@@ -96,4 +96,54 @@ describe('CLI fixture errors', () => {
       }
     });
   }
+
+  it('reports a missing fixture path without an internal stack trace', async () => {
+    const path = join(tmpdir(), 'definitely-missing-replaynote-fixture.json');
+    const result = await runCli(['format', path, '--format', 'both']);
+
+    assert.equal(result.exitCode, 2);
+    assert.equal(result.stdout, '');
+    assert.equal(result.stderr, `replaynote: could not read fixture "${path}" (ENOENT).\n`);
+    assert.doesNotMatch(result.stderr, /node:fs|    at /);
+  });
+
+  it('reports malformed fixture JSON without an internal stack trace', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'replaynote-cli-test-'));
+    const path = join(directory, 'malformed.json');
+
+    try {
+      await writeFile(path, '{bad', 'utf8');
+      const result = await runCli(['format', path, '--format', 'both']);
+
+      assert.equal(result.exitCode, 2);
+      assert.equal(result.stdout, '');
+      assert.equal(result.stderr, `replaynote: could not parse fixture "${path}" as JSON.\n`);
+      assert.doesNotMatch(result.stderr, /SyntaxError|JSON\.parse|    at /);
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
+
+  it('reports an unwritable output path without partial formatted output', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'replaynote-cli-test-'));
+    const outputPath = join(directory, 'missing', 'report.md');
+
+    try {
+      const result = await runCli([
+        'format',
+        new URL('../fixtures/result.json', import.meta.url).pathname,
+        '--format',
+        'both',
+        '--out',
+        outputPath
+      ]);
+
+      assert.equal(result.exitCode, 2);
+      assert.equal(result.stdout, '');
+      assert.equal(result.stderr, `replaynote: could not write output "${outputPath}" (ENOENT).\n`);
+      assert.doesNotMatch(result.stderr, /node:fs|    at /);
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
 });
