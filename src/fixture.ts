@@ -19,7 +19,15 @@ function isStringRecord(value: unknown): value is Record<string, string> {
 }
 
 function isExitCode(value: unknown): value is number | null {
-  return value === null || typeof value === 'number';
+  return value === null || (Number.isInteger(value) && (value as number) >= 0);
+}
+
+function isDuration(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function isTimestamp(value: unknown): value is string {
+  return typeof value === 'string' && Number.isFinite(Date.parse(value));
 }
 
 function isSignal(value: unknown): value is NodeJS.Signals | null {
@@ -40,9 +48,10 @@ export function parseFixture(raw: string): CommandResult {
     typeof (parsed as CommandResult).cwd !== 'string' ||
     !isExitCode((parsed as CommandResult).exitCode) ||
     !isSignal((parsed as CommandResult).signal) ||
-    typeof (parsed as CommandResult).durationMs !== 'number' ||
-    typeof (parsed as CommandResult).startedAt !== 'string' ||
-    typeof (parsed as CommandResult).finishedAt !== 'string' ||
+    ((parsed as CommandResult).exitCode === null) === ((parsed as CommandResult).signal === null) ||
+    !isDuration((parsed as CommandResult).durationMs) ||
+    !isTimestamp((parsed as CommandResult).startedAt) ||
+    !isTimestamp((parsed as CommandResult).finishedAt) ||
     !isStringRecord((parsed as CommandResult).env) ||
     typeof (parsed as CommandResult).stdout !== 'string' ||
     typeof (parsed as CommandResult).stderr !== 'string'
