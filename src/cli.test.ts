@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
@@ -11,9 +11,10 @@ type CliResult = {
   stdout: string;
 };
 
-async function runCli(args: string[]): Promise<CliResult> {
+async function runCli(args: string[], env: NodeJS.ProcessEnv = process.env): Promise<CliResult> {
   return await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [new URL('./cli.js', import.meta.url).pathname, ...args], {
+      env,
       stdio: ['ignore', 'pipe', 'pipe']
     });
     let stdout = '';
@@ -31,6 +32,28 @@ async function runCli(args: string[]): Promise<CliResult> {
     child.on('close', (exitCode) => resolve({ exitCode, stderr, stdout }));
   });
 }
+
+describe('CLI Markdown metadata', () => {
+  it('preserves literal backticks captured from CWD and selected environment values', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'replaynote-cli-test-'));
+    const cwd = join(directory, 'cwd`segment');
+
+    try {
+      await mkdir(cwd);
+      const result = await runCli(
+        ['run', '--env', 'DEMO', '--cwd', cwd, '--', process.execPath, '--version'],
+        { ...process.env, DEMO: 'alpha`beta' }
+      );
+
+      assert.equal(result.exitCode, 0);
+      assert.equal(result.stderr, '');
+      assert.ok(result.stdout.includes(`- CWD: \`\`${cwd}\`\``));
+      assert.match(result.stdout, /- `DEMO`: ``alpha`beta``/);
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
+});
 
 describe('CLI command start errors', () => {
   it('reports a missing executable without an internal stack trace', async () => {

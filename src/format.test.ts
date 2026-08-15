@@ -58,6 +58,24 @@ describe('formatting', () => {
     );
   });
 
+  it('preserves literal backticks and surrounding spaces in report metadata', () => {
+    const markdown = formatResult(
+      {
+        ...result,
+        cwd: '/repo/cwd`segment',
+        env: {
+          'DEMO`KEY': 'alpha`beta',
+          PADDED: ' alpha`beta '
+        }
+      },
+      { format: 'markdown' }
+    );
+
+    assert.match(markdown, /- CWD: ``\/repo\/cwd`segment``/);
+    assert.match(markdown, /- ``DEMO`KEY``: ``alpha`beta``/);
+    assert.match(markdown, /- `PADDED`: ``  alpha`beta  ``/);
+  });
+
   it('renders JSON reports that parse as fixtures', () => {
     const json = formatResult(result, { format: 'json' });
 
