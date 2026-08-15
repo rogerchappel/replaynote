@@ -66,6 +66,10 @@ Use `--format both` to append the JSON payload below the Markdown report.
 Markdown reports preserve literal command output, including runs of backticks,
 by automatically choosing code fences that cannot collide with captured text.
 
+Result fixtures require a non-negative integer `exitCode` and a null `signal`,
+or a null `exitCode` and a recognized signal. `durationMs` must be a finite,
+non-negative number, and `startedAt` and `finishedAt` must be valid timestamps.
+
 Run the checked-in fixture demo to create Markdown and JSON reports from the
 sample result fixture:
 
