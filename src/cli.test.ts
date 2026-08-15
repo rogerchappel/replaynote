@@ -78,6 +78,14 @@ describe('CLI fixture errors', () => {
         stderr: '',
         stdout: ''
       }
+    ],
+    [
+      'invalid result values',
+      {
+        command: ['npm', 'test'], cwd: '/repo', durationMs: -1, env: {},
+        exitCode: 1.5, finishedAt: 'not-a-date', signal: 'SIGTERM',
+        startedAt: 'not-a-date', stderr: '', stdout: ''
+      }
     ]
   ] as const) {
     it(`reports ${description} without formatted output`, async () => {
