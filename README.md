@@ -63,8 +63,10 @@ replaynote format fixtures/result.json --format markdown
 ```
 
 Use `--format both` to append the JSON payload below the Markdown report.
-Markdown reports preserve literal command output, including runs of backticks,
-by automatically choosing code fences that cannot collide with captured text.
+Markdown reports preserve literal command output and captured metadata such as
+the working directory and selected environment names and values, including runs
+of backticks, by automatically choosing code fences and inline-code delimiters
+that cannot collide with captured text.
 
 Run the checked-in fixture demo to create Markdown and JSON reports from the
 sample result fixture:

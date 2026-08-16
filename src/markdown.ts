@@ -10,6 +10,22 @@ function codeBlock(value: string, language = 'text'): string {
   return `${fence}${language}\n${value}${value.endsWith('\n') ? '' : '\n'}${fence}`;
 }
 
+function codeSpan(value: string): string {
+  const longestBacktickRun = Math.max(
+    0,
+    ...Array.from(value.matchAll(/`+/g), ([match]) => match.length)
+  );
+  const fence = '`'.repeat(longestBacktickRun + 1);
+  const needsPadding =
+    value.length === 0 ||
+    value.startsWith('`') ||
+    value.endsWith('`') ||
+    (value.startsWith(' ') && value.endsWith(' ') && value.trim().length > 0);
+  const padding = needsPadding ? ' ' : '';
+
+  return `${fence}${padding}${value}${padding}${fence}`;
+}
+
 function renderEnv(env: Record<string, string>): string {
   const entries = Object.entries(env);
 
@@ -19,7 +35,7 @@ function renderEnv(env: Record<string, string>): string {
 
   return entries
     .sort(([left], [right]) => left.localeCompare(right))
-    .map(([key, value]) => `- \`${key}\`: \`${value}\``)
+    .map(([key, value]) => `- ${codeSpan(key)}: ${codeSpan(value)}`)
     .join('\n');
 }
 
@@ -35,11 +51,11 @@ export function formatMarkdown(result: CommandResult, title = 'ReplayNote'): str
     '',
     '## Result',
     '',
-    `- CWD: \`${result.cwd}\``,
-    `- Exit: \`${exit}\``,
-    `- Duration: \`${result.durationMs}ms\``,
-    `- Started: \`${result.startedAt}\``,
-    `- Finished: \`${result.finishedAt}\``,
+    `- CWD: ${codeSpan(result.cwd)}`,
+    `- Exit: ${codeSpan(exit)}`,
+    `- Duration: ${codeSpan(`${result.durationMs}ms`)}`,
+    `- Started: ${codeSpan(result.startedAt)}`,
+    `- Finished: ${codeSpan(result.finishedAt)}`,
     '',
     '## Environment',
     '',
