@@ -119,4 +119,23 @@ describe('fixture parsing', () => {
         error instanceof ReplayNoteError && error.code === 'invalid-fixture'
     );
   });
+
+  for (const [description, changes] of [
+    ['a fractional exit code', { exitCode: 1.5 }],
+    ['a negative exit code', { exitCode: -1 }],
+    ['a negative duration', { durationMs: -1 }],
+    ['a non-finite duration', { durationMs: null }],
+    ['an invalid start timestamp', { startedAt: 'not-a-date' }],
+    ['an invalid finish timestamp', { finishedAt: 'also-not-a-date' }],
+    ['both an exit code and signal', { exitCode: 1, signal: 'SIGTERM' }],
+    ['neither an exit code nor signal', { exitCode: null, signal: null }]
+  ] as const) {
+    it(`rejects ${description}`, () => {
+      assert.throws(
+        () => parseFixture(JSON.stringify({ ...result, ...changes })),
+        (error: unknown) =>
+          error instanceof ReplayNoteError && error.code === 'invalid-fixture'
+      );
+    });
+  }
 });
