@@ -109,6 +109,30 @@ describe('CLI fixture errors', () => {
         exitCode: 1.5, finishedAt: 'not-a-date', signal: 'SIGTERM',
         startedAt: 'not-a-date', stderr: '', stdout: ''
       }
+    ],
+    [
+      'an empty command',
+      {
+        command: [], cwd: '/repo', durationMs: 1, env: {}, exitCode: 0,
+        finishedAt: '2026-05-26T00:00:01.000Z', signal: null,
+        startedAt: '2026-05-26T00:00:00.000Z', stderr: '', stdout: ''
+      }
+    ],
+    [
+      'an array environment',
+      {
+        command: ['npm', 'test'], cwd: '/repo', durationMs: 1, env: ['CI'], exitCode: 0,
+        finishedAt: '2026-05-26T00:00:01.000Z', signal: null,
+        startedAt: '2026-05-26T00:00:00.000Z', stderr: '', stdout: ''
+      }
+    ],
+    [
+      'a finish timestamp before the start timestamp',
+      {
+        command: ['npm', 'test'], cwd: '/repo', durationMs: 1, env: {}, exitCode: 0,
+        finishedAt: '2026-05-26T00:00:00.000Z', signal: null,
+        startedAt: '2026-05-26T00:00:01.000Z', stderr: '', stdout: ''
+      }
     ]
   ] as const) {
     it(`reports ${description} without formatted output`, async () => {

@@ -68,9 +68,11 @@ the working directory and selected environment names and values, including runs
 of backticks, by automatically choosing code fences and inline-code delimiters
 that cannot collide with captured text.
 
-Result fixtures require a non-negative integer `exitCode` and a null `signal`,
-or a null `exitCode` and a recognized signal. `durationMs` must be a finite,
-non-negative number, and `startedAt` and `finishedAt` must be valid timestamps.
+Result fixtures require a non-empty string `command` array and an `env` object
+whose values are strings. They require a non-negative integer `exitCode` and a
+null `signal`, or a null `exitCode` and a recognized signal. `durationMs` must
+be a finite, non-negative number; `startedAt` and `finishedAt` must be valid
+timestamps, and the finish timestamp cannot precede the start timestamp.
 
 Run the checked-in fixture demo to create Markdown and JSON reports from the
 sample result fixture:
