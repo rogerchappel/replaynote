@@ -14,6 +14,7 @@ function isStringRecord(value: unknown): value is Record<string, string> {
   return (
     typeof value === 'object' &&
     value !== null &&
+    !Array.isArray(value) &&
     Object.values(value).every((item) => typeof item === 'string')
   );
 }
@@ -44,6 +45,7 @@ export function parseFixture(raw: string): CommandResult {
     typeof parsed !== 'object' ||
     parsed === null ||
     !Array.isArray((parsed as CommandResult).command) ||
+    (parsed as CommandResult).command.length === 0 ||
     !(parsed as CommandResult).command.every((part) => typeof part === 'string') ||
     typeof (parsed as CommandResult).cwd !== 'string' ||
     !isExitCode((parsed as CommandResult).exitCode) ||
@@ -52,6 +54,8 @@ export function parseFixture(raw: string): CommandResult {
     !isDuration((parsed as CommandResult).durationMs) ||
     !isTimestamp((parsed as CommandResult).startedAt) ||
     !isTimestamp((parsed as CommandResult).finishedAt) ||
+    Date.parse((parsed as CommandResult).finishedAt) <
+      Date.parse((parsed as CommandResult).startedAt) ||
     !isStringRecord((parsed as CommandResult).env) ||
     typeof (parsed as CommandResult).stdout !== 'string' ||
     typeof (parsed as CommandResult).stderr !== 'string'
