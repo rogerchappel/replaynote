@@ -120,13 +120,33 @@ describe('fixture parsing', () => {
     );
   });
 
+  it('accepts empty environment metadata and equal timestamps', () => {
+    const boundary = {
+      ...result,
+      env: {},
+      finishedAt: result.startedAt
+    };
+
+    assert.deepEqual(parseFixture(JSON.stringify(boundary)), boundary);
+  });
+
   for (const [description, changes] of [
+    ['an empty command', { command: [] }],
+    ['an array environment', { env: ['CI'] }],
+    ['a non-record environment', { env: null }],
     ['a fractional exit code', { exitCode: 1.5 }],
     ['a negative exit code', { exitCode: -1 }],
     ['a negative duration', { durationMs: -1 }],
     ['a non-finite duration', { durationMs: null }],
     ['an invalid start timestamp', { startedAt: 'not-a-date' }],
     ['an invalid finish timestamp', { finishedAt: 'also-not-a-date' }],
+    [
+      'a finish timestamp before the start timestamp',
+      {
+        finishedAt: '2026-05-26T00:00:00.000Z',
+        startedAt: '2026-05-26T00:00:01.000Z'
+      }
+    ],
     ['both an exit code and signal', { exitCode: 1, signal: 'SIGTERM' }],
     ['neither an exit code nor signal', { exitCode: null, signal: null }]
   ] as const) {
