@@ -35,8 +35,8 @@
     "test": "node --test dist/**/*.test.js",
     "smoke": "npm run build && node dist/cli.js run --out /tmp/replaynote-smoke.md --format both -- node --version",
     "validate": "bash scripts/validate.sh",
-    "package:smoke": "npm pack --dry-run",
-    "release:check": "npm run check && npm test && npm run smoke && npm run release:readiness",
+    "package:smoke": "npm run build && node scripts/package-smoke.mjs",
+    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke && npm run release:readiness",
     "release:readiness": "node scripts/validate-release-readiness.mjs"
   },
   "keywords": [
