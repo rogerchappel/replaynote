@@ -14,8 +14,15 @@ function requireField(condition, message) {
 
 requireField(packageJson.repository, 'package.json must declare repository metadata');
 requireField(Array.isArray(packageJson.files) && packageJson.files.length > 0, 'package.json must declare a non-empty files allowlist');
-requireField(scripts['package:smoke'], 'package.json scripts must include package:smoke');
+requireField(
+  scripts['package:smoke']?.includes('scripts/package-smoke.mjs'),
+  'package:smoke must run the disposable consumer install check',
+);
 requireField(scripts['release:check'], 'package.json scripts must include release:check');
+requireField(
+  scripts['release:check']?.includes('npm run package:smoke'),
+  'release:check must run package:smoke',
+);
 requireField(packageJson.name === '@rogerchappel/replaynote', 'package name must remain @rogerchappel/replaynote');
 requireField(packageJson.publishConfig?.access === 'public', 'package.json must declare public npm access');
 

@@ -146,4 +146,7 @@ npm run package:smoke
 npm run release:check
 ```
 
-Use `npm run package:smoke` or `npm pack --dry-run` to confirm the published tarball includes the support docs and runnable package contents.
+`npm run package:smoke` builds and packs the exact tarball, verifies its expected
+compiled output, examples, fixtures, and support docs, then installs it in a
+disposable consumer project. It invokes the installed `replaynote --help` and
+`--version` commands and formats the packaged fixture before cleaning up.
