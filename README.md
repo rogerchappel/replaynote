@@ -114,3 +114,7 @@ npm run release:check
 ```
 
 Use `npm run package:smoke` or `npm pack --dry-run` to confirm the published tarball includes the support docs and runnable package contents.
+
+
+<!-- Automated change by spark worker -->
+This change was automatically processed by oss-pipeline-worker-spark-a
