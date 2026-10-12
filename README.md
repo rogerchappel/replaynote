@@ -96,29 +96,28 @@ ReplayNote redacts common token, password, private key, email, bearer, GitHub,
 Slack, and AWS access key patterns. Redaction is a safety net, not a guarantee;
 review generated notes before sharing them publicly.
 
-## Verify
+## Verification
 
-Run the local release gate before opening a pull request:
+Run the release gate before opening a pull request or preparing a release:
 
 ```sh
 npm run release:check
-npm run validate
 ```
 
-`scripts/validate.sh` runs the repository's standard local checks when they are defined and will also run `agent-qc ready` when `agent-qc` is installed. Missing `agent-qc` is treated as a skip, not a failure.
+This single command runs the type check, tests, CLI smoke check, packaged
+consumer smoke check, and release-readiness validation. `release:readiness`
+is included by `release:check`; it validates repository metadata, package
+identity, the packaged CLI entry point, and the npm publication workflow. Run
+`npm run release:readiness` by itself only when you need that metadata-focused
+check, rather than the full gate.
 
-## Release readiness
+For narrower local feedback, run the relevant component directly, such as
+`npm run check`, `npm test`, `npm run smoke`, or `npm run package:smoke`.
 
-Run the same checks that CI uses before opening a release PR:
-
-```sh
-npm run release:readiness
-npm run release:check
-```
-
-`release:readiness` validates repository metadata, package identity, the
-packaged CLI entry point, and the npm publication workflow. `release:check`
-runs the project build, test, smoke, and release-readiness checks.
+`npm run package:smoke` builds and packs the exact tarball, verifies its expected
+compiled output, examples, fixtures, and support docs, then installs it in a
+disposable consumer project. It invokes the installed `replaynote --help` and
+`--version` commands and formats the packaged fixture before cleaning up.
 
 ## Contributing
 
