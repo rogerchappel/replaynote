@@ -17,6 +17,7 @@
   "files": [
     "dist",
     "!dist/**/*.test.*",
+    "scripts/validate-release-readiness.mjs",
     "examples",
     "fixtures",
     "README.md",
