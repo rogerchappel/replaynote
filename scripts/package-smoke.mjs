@@ -41,6 +41,7 @@ try {
     'dist/cli.js',
     'dist/index.js',
     'dist/index.d.ts',
+    'scripts/validate-release-readiness.mjs',
     'examples/fixture-demo.sh',
     'fixtures/result.json',
     'README.md',
