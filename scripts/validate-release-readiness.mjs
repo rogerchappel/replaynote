@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 
 const root = process.cwd();
 const packagePath = path.join(root, 'package.json');
@@ -29,17 +29,45 @@ requireField(packageJson.publishConfig?.access === 'public', 'package.json must 
 const binPath = packageJson.bin?.replaynote;
 requireField(binPath === 'dist/cli.js', 'package must expose replaynote from dist/cli.js');
 
-let packedFiles = [];
-try {
-  const packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
-    cwd: root,
-    encoding: 'utf8',
-  });
-  packedFiles = JSON.parse(packOutput)[0]?.files?.map(({ path: file }) => file) ?? [];
-} catch (error) {
-  failures.push(`npm pack --dry-run --json failed: ${error.message}`);
+function inspectPackResult(result) {
+  if (result.error || result.status !== 0) {
+    return { files: [], error: result.error?.message ?? `exited with status ${result.status}` };
+  }
+  try {
+    const report = JSON.parse(result.stdout);
+    if (!Array.isArray(report) || !Array.isArray(report[0]?.files)) {
+      return { files: [], error: 'returned an invalid JSON file list' };
+    }
+    return { files: report[0].files.map(({ path: file }) => file), error: null };
+  } catch (error) {
+    return { files: [], error: `returned invalid JSON: ${error.message}` };
+  }
 }
-requireField(packedFiles.includes('dist/cli.js'), 'npm package must contain the replaynote bin target dist/cli.js');
+
+const packResult = spawnSync('npm', ['pack', '--dry-run', '--json'], {
+  cwd: root,
+  encoding: 'utf8',
+});
+const packed = inspectPackResult(packResult);
+if (packed.error) failures.push(`npm pack --dry-run --json ${packed.error}`);
+const requiredPackageFiles = [
+  'dist/cli.js',
+  'dist/index.js',
+  'dist/index.d.ts',
+  'scripts/validate-release-readiness.mjs',
+  'examples/fixture-demo.sh',
+  'fixtures/result.json',
+  'README.md',
+  'LICENSE',
+  'SECURITY.md',
+  'CHANGELOG.md',
+  'CONTRIBUTING.md',
+];
+for (const file of requiredPackageFiles) {
+  requireField(packed.files.includes(file), `npm package must contain required file ${file}`);
+}
+
+
 
 const workflowDir = path.join(root, '.github', 'workflows');
 if (fs.existsSync(workflowDir)) {
